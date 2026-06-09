@@ -63,6 +63,8 @@ router.get("/", async (req, res) => {
 // Add Expense
 router.post("/", async (req, res) => {
   try {
+
+    console.log("REQ USER:", req.user);
     const expense = await Expense.create({
       title: req.body.title,
       amount: req.body.amount,
