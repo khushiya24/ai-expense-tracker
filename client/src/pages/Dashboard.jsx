@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import ExpenseChart from "../components/ExpenseChart";
 import { Link } from "react-router-dom";
+import "./Dashboard.css";
 
 
 function Dashboard() {
@@ -73,90 +74,106 @@ function Dashboard() {
     }
   };
 
-  return (
+
     
-    <div style={{ padding: "20px" }}>
-      <h1>AI Expense Tracker</h1>
+    return (
+  <div className="dashboard">
 
-      {/* Dashboard */}
-      <h2>Dashboard</h2>
+    {/* Navbar */}
+    <nav className="navbar">
+      <div className="logo">
+        💰 AI Expense Tracker
+      </div>
 
-      <div>
-  <Link to="/dashboard">Dashboard</Link>
+      <div className="nav-links">
+        <Link to="/dashboard">Dashboard</Link>
+        <Link to="/profile">Profile</Link>
+        <Link to="/settings">Settings</Link>
+      </div>
+    </nav>
 
-  {" | "}
+    {/* Hero Section */}
+    <div className="hero">
+      <div className="badge">
+        AI Powered Expense Management
+      </div>
 
-  <Link to="/profile">Profile</Link>
-
-  {" | "}
-
-  <Link to="/settings">Settings</Link>
-</div>
-
-<hr />
+      <h1>Track Expenses Smarter</h1>
 
       <p>
-        <strong>Total Transactions:</strong>{" "}
-        {summary.totalTransactions || 0}
+        Monitor your spending, analyze trends,
+        and manage your finances efficiently.
       </p>
+    </div>
 
-      <p>
-        <strong>Total Expenses:</strong> ₹
-        {summary.totalExpenses || 0}
-      </p>
+    {/* Summary Cards */}
+    <div className="cards">
 
-      <hr />
+      <div className="card">
+        <h3>Total Transactions</h3>
+        <p>{summary.totalTransactions || 0}</p>
+      </div>
 
-      {/* Pie Chart */}
+      <div className="card">
+        <h3>Total Expenses</h3>
+        <p>₹{summary.totalExpenses || 0}</p>
+      </div>
+
+    </div>
+
+    {/* Chart */}
+    <div className="section-card">
       <h2>Expense Distribution</h2>
 
       <ExpenseChart
         categorySummary={summary.categorySummary}
       />
+    </div>
 
-      <hr />
-
-      {/* Add Expense Form */}
+    {/* Add Expense */}
+    <div className="section-card">
       <h2>Add Expense</h2>
 
-      <form onSubmit={addExpense}>
+      <form
+        className="expense-form"
+        onSubmit={addExpense}
+      >
         <input
           type="text"
           placeholder="Expense Title"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) =>
+            setTitle(e.target.value)
+          }
         />
-
-        <br />
-        <br />
 
         <input
           type="number"
           placeholder="Amount"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) =>
+            setAmount(e.target.value)
+          }
         />
-
-        <br />
-        <br />
 
         <input
           type="text"
           placeholder="Category"
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={(e) =>
+            setCategory(e.target.value)
+          }
         />
 
-        <br />
-        <br />
-
-        <button type="submit">Add Expense</button>
+        <button type="submit">
+          Add Expense
+        </button>
       </form>
+    </div>
 
-      <hr />
-
-      {/* Expense List */}
-      <h2>Expenses</h2>
+    {/* Expense List */}
+    <div className="section-card">
+      <h2>Recent Expenses</h2>
 
       {expenses.length === 0 ? (
         <p>No expenses found.</p>
@@ -164,38 +181,33 @@ function Dashboard() {
         expenses.map((expense) => (
           <div
             key={expense._id}
-            style={{
-              border: "1px solid #ccc",
-              padding: "10px",
-              marginBottom: "10px",
-              borderRadius: "8px",
-            }}
+            className="expense-item"
           >
-            <h3>{expense.title}</h3>
+            <div>
+              <h3>{expense.title}</h3>
 
-            <p>
-              <strong>Amount:</strong> ₹
-              {expense.amount}
-            </p>
+              <p>{expense.category}</p>
+            </div>
 
-            <p>
-              <strong>Category:</strong>{" "}
-              {expense.category}
-            </p>
+            <div className="expense-right">
+              <h3>₹{expense.amount}</h3>
 
-            <button
-              onClick={() =>
-                deleteExpense(expense._id)
-              }
-            >
-              Delete
-            </button>
+              <button
+                className="delete-btn"
+                onClick={() =>
+                  deleteExpense(expense._id)
+                }
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))
       )}
     </div>
-    
-  );
+
+  </div>
+);
 }
 
 export default Dashboard;
