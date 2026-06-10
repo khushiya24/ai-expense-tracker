@@ -14,7 +14,7 @@ body{
 
 .dashboard{
   min-height:100vh;
-  padding:30px;
+  padding:20px;
   background:
     radial-gradient(circle at top,
     rgba(99,102,241,.35),
@@ -39,6 +39,7 @@ body{
 
 .nav-links{
   display:flex;
+  align-items:center;
   gap:25px;
 }
 
@@ -190,4 +191,43 @@ body{
 
 .delete-btn:hover{
   background:#dc2626;
+}
+
+.expense-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.expense-table th,
+.expense-table td{
+  padding:15px;
+  text-align:left;
+  border-bottom:1px solid #334155;
+}
+
+.expense-table th{
+  color:#818cf8;
+}
+
+.logout-link{
+  background:none;
+  border:none;
+  color:#cbd5e1;
+  font-size:18px;
+  font-weight:500;
+  cursor:pointer;
+  transition:.3s;
+  padding:0;
+}
+
+.logout-link:hover{
+  color:#ef4444;
+}
+
+select{
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#1e293b;
+  color:white;
 }

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import ExpenseChart from "../components/ExpenseChart";
-import { Link } from "react-router-dom";
-import "./Dashboard.css";
+import { Link, useNavigate } from "react-router-dom";import "./Dashboard.css";
 
 
 function Dashboard() {
@@ -34,6 +33,13 @@ function Dashboard() {
       console.error(error);
     }
   };
+  const navigate = useNavigate();
+
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  navigate("/");
+};
 
   const addExpense = async (e) => {
     e.preventDefault();
@@ -63,6 +69,11 @@ function Dashboard() {
     }
   };
 
+  const user =
+  JSON.parse(localStorage.getItem("user"));
+
+const userName = user?.name || "User";
+
   const deleteExpense = async (id) => {
     try {
       await API.delete(`/expenses/${id}`);
@@ -86,25 +97,33 @@ function Dashboard() {
       </div>
 
       <div className="nav-links">
-        <Link to="/dashboard">Dashboard</Link>
-        <Link to="/profile">Profile</Link>
-        <Link to="/settings">Settings</Link>
-      </div>
+  <Link to="/dashboard">Dashboard</Link>
+  <Link to="/profile">Profile</Link>
+  <Link to="/settings">Settings</Link>
+
+  <button
+  className="logout-link"
+  onClick={logout}
+>
+  Logout
+</button>
+</div>
     </nav>
 
     {/* Hero Section */}
     <div className="hero">
-      <div className="badge">
-        AI Powered Expense Management
-      </div>
+  <div className="badge">
+    AI Powered Expense Management
+  </div>
 
-      <h1>Track Expenses Smarter</h1>
+  <h1>
+    Good Morning, {userName} 👋
+  </h1>
 
-      <p>
-        Monitor your spending, analyze trends,
-        and manage your finances efficiently.
-      </p>
-    </div>
+  <p>
+    Manage your expenses smarter with AI
+  </p>
+</div>
 
     {/* Summary Cards */}
     <div className="cards">
@@ -124,6 +143,24 @@ function Dashboard() {
     {/* Chart */}
     <div className="section-card">
       <h2>Expense Distribution</h2>
+
+      <div className="section-card">
+  <h2>AI Insights 🤖</h2>
+
+  <p>
+    {summary.categorySummary &&
+    Object.keys(summary.categorySummary)
+      .length > 0
+      ? `You spent most of your money on ${
+          Object.entries(
+            summary.categorySummary
+          ).sort(
+            (a, b) => b[1] - a[1]
+          )[0][0]
+        } this month.`
+      : "Add expenses to generate insights."}
+  </p>
+</div>
 
       <ExpenseChart
         categorySummary={summary.categorySummary}
@@ -156,15 +193,36 @@ function Dashboard() {
           }
         />
 
-        <input
-          type="text"
-          placeholder="Category"
-          value={category}
-          onChange={(e) =>
-            setCategory(e.target.value)
-          }
-        />
+        <select
+  value={category}
+  onChange={(e) =>
+    setCategory(e.target.value)
+  }
+>
+  <option value="">
+    Select Category
+  </option>
 
+  <option value="Food">
+    Food
+  </option>
+
+  <option value="Travel">
+    Travel
+  </option>
+
+  <option value="Shopping">
+    Shopping
+  </option>
+
+  <option value="Bills">
+    Bills
+  </option>
+
+  <option value="Entertainment">
+    Entertainment
+  </option>
+</select>
         <button type="submit">
           Add Expense
         </button>
@@ -178,31 +236,45 @@ function Dashboard() {
       {expenses.length === 0 ? (
         <p>No expenses found.</p>
       ) : (
-        expenses.map((expense) => (
-          <div
-            key={expense._id}
-            className="expense-item"
+        <table className="expense-table">
+
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Category</th>
+      <th>Amount</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    {expenses.map((expense) => (
+      <tr key={expense._id}>
+
+        <td>{expense.title}</td>
+
+        <td>{expense.category}</td>
+
+        <td>₹{expense.amount}</td>
+
+        <td>
+          <button
+            className="delete-btn"
+            onClick={() =>
+              deleteExpense(expense._id)
+            }
           >
-            <div>
-              <h3>{expense.title}</h3>
+            Delete
+          </button>
+        </td>
 
-              <p>{expense.category}</p>
-            </div>
+      </tr>
+    ))}
 
-            <div className="expense-right">
-              <h3>₹{expense.amount}</h3>
+  </tbody>
 
-              <button
-                className="delete-btn"
-                onClick={() =>
-                  deleteExpense(expense._id)
-                }
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))
+</table>
       )}
     </div>
 
