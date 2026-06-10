@@ -13,15 +13,25 @@ function Login() {
 
     try {
       const res = await API.post("/auth/login", {
-        email,
-        password,
-      });
+  email,
+  password,
+});
 
-      localStorage.setItem("token", res.data.token);
+console.log("LOGIN RESPONSE:", res.data);
 
-      alert("Login Successful");
+localStorage.setItem("token", res.data.token);
 
-      navigate("/dashboard");
+localStorage.setItem(
+  "user",
+  JSON.stringify(res.data.user)
+);
+
+console.log("TOKEN:", localStorage.getItem("token"));
+console.log("USER:", localStorage.getItem("user"));
+
+alert("Login Successful");
+
+navigate("/dashboard");
     } catch (error) {
       alert(
         error.response?.data?.message ||
