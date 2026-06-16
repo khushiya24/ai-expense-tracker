@@ -231,3 +231,37 @@ select{
   background:#1e293b;
   color:white;
 }
+
+.expense-filters{
+  display:flex;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.edit-btn{
+  background:#6366f1;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-right:10px;
+}
+
+.edit-btn:hover{
+  background:#4f46e5;
+}
+
+.export-btn{
+  background:#22c55e;
+  color:white;
+  padding:10px 16px;
+  border-radius:10px;
+  text-decoration:none;
+  display:inline-block;
+  margin-bottom:20px;
+}
+
+.export-btn:hover{
+  background:#16a34a;
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import ExpenseChart from "../components/ExpenseChart";
 import { Link, useNavigate } from "react-router-dom";import "./Dashboard.css";
+import { CSVLink } from "react-csv";
 
 
 function Dashboard() {
@@ -10,6 +11,9 @@ function Dashboard() {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
+  const [search, setSearch] = useState("");
+const [filterCategory, setFilterCategory] =
+  useState("");
 
   useEffect(() => {
     fetchExpenses();
@@ -24,6 +28,32 @@ function Dashboard() {
       console.error(error);
     }
   };
+  const filteredExpenses =
+  expenses.filter((expense) => {
+
+    const matchesSearch =
+      expense.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+    const matchesCategory =
+      filterCategory === ""
+        ? true
+        : expense.category === filterCategory;
+
+    return (
+      matchesSearch &&
+      matchesCategory
+    );
+});
+const csvData = expenses.map((expense) => ({
+  Title: expense.title,
+  Category: expense.category,
+  Amount: expense.amount,
+  Date: new Date(
+    expense.date
+  ).toLocaleDateString(),
+}));
 
   const fetchSummary = async () => {
     try {
@@ -42,37 +72,62 @@ const logout = () => {
 };
 
   const addExpense = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!title || !amount || !category) {
-      alert("Please fill all fields");
-      return;
-    }
+  if (!title || !amount || !category) {
+    alert("Please fill all fields");
+    return;
+  }
 
-    try {
+  try {
+    if (window.editId) {
+      await API.put(
+        `/expenses/${window.editId}`,
+        {
+          title,
+          amount: Number(amount),
+          category,
+        }
+      );
+
+      window.editId = null;
+    } else {
       await API.post("/expenses", {
         title,
         amount: Number(amount),
-        category:
-          category.charAt(0).toUpperCase() +
-          category.slice(1).toLowerCase(),
+        category,
       });
-
-      setTitle("");
-      setAmount("");
-      setCategory("");
-
-      fetchExpenses();
-      fetchSummary();
-    } catch (error) {
-      console.error(error);
     }
-  };
+
+    setTitle("");
+    setAmount("");
+    setCategory("");
+
+    fetchExpenses();
+    fetchSummary();
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+ 
 
   const user =
   JSON.parse(localStorage.getItem("user"));
 
 const userName = user?.name || "User";
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+
+  if (hour < 12) {
+    return "Good Morning";
+  } else if (hour < 17) {
+    return "Good Afternoon";
+  } else {
+    return "Good Evening";
+  }
+};
 
   const deleteExpense = async (id) => {
     try {
@@ -116,9 +171,9 @@ const userName = user?.name || "User";
     AI Powered Expense Management
   </div>
 
-  <h1>
-    Good Morning, {userName} 👋
-  </h1>
+ <h1>
+  {getGreeting()}, {userName} 👋
+</h1>
 
   <p>
     Manage your expenses smarter with AI
@@ -166,6 +221,19 @@ const userName = user?.name || "User";
         categorySummary={summary.categorySummary}
       />
     </div>
+    <div className="section-card">
+  <h2>Budget Alert 🚨</h2>
+
+  {summary.totalExpenses > 10000 ? (
+    <p style={{ color: "#ef4444" }}>
+      Warning! You crossed your ₹10,000 monthly budget.
+    </p>
+  ) : (
+    <p style={{ color: "#22c55e" }}>
+      Great! You are within your budget.
+    </p>
+  )}
+</div>
 
     {/* Add Expense */}
     <div className="section-card">
@@ -228,6 +296,41 @@ const userName = user?.name || "User";
         </button>
       </form>
     </div>
+    <div className="expense-filters">
+
+  <input
+    type="text"
+    placeholder="Search Expense..."
+    value={search}
+    onChange={(e) =>
+      setSearch(e.target.value)
+    }
+  />
+
+  <select
+    value={filterCategory}
+    onChange={(e) =>
+      setFilterCategory(e.target.value)
+    }
+  >
+    <option value="">All Categories</option>
+    <option value="Food">Food</option>
+    <option value="Travel">Travel</option>
+    <option value="Shopping">Shopping</option>
+    <option value="Bills">Bills</option>
+    <option value="Entertainment">
+      Entertainment
+    </option>
+  </select>
+
+</div>
+<CSVLink
+  data={csvData}
+  filename={"expenses.csv"}
+  className="export-btn"
+>
+  Export CSV
+</CSVLink>
 
     {/* Expense List */}
     <div className="section-card">
@@ -237,6 +340,7 @@ const userName = user?.name || "User";
         <p>No expenses found.</p>
       ) : (
         <table className="expense-table">
+
 
   <thead>
     <tr>
@@ -249,7 +353,7 @@ const userName = user?.name || "User";
 
   <tbody>
 
-    {expenses.map((expense) => (
+    {filteredExpenses.map((expense) => (
       <tr key={expense._id}>
 
         <td>{expense.title}</td>
@@ -260,10 +364,26 @@ const userName = user?.name || "User";
 
         <td>
           <button
+  className="edit-btn"
+  onClick={() => {
+
+    setTitle(expense.title);
+
+    setAmount(expense.amount);
+
+    setCategory(expense.category);
+
+    window.editId = expense._id;
+  }}
+>
+  Edit
+</button>
+          <button
             className="delete-btn"
             onClick={() =>
               deleteExpense(expense._id)
             }
+            
           >
             Delete
           </button>
